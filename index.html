@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Store Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f3f4f6; padding: 20px; }
+        .chatbox { width: 100%; max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .messages { max-height: 400px; overflow-y: scroll; padding-bottom: 20px; }
+        .input-box { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; }
+        .button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="chatbox">
+        <h1 style="text-align: center;">Grocery Store Chatbot</h1>
+        <div class="messages" id="messages"></div>
+        <input type="text" id="user_input" class="input-box" placeholder="Ask me anything about your groceries..." />
+        <button class="button" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function appendMessage(message, isBot) {
+            let messageDiv = document.createElement("div");
+            messageDiv.textContent = message;
+            messageDiv.style.marginBottom = "10px";
+            messageDiv.style.padding = "10px";
+            messageDiv.style.backgroundColor = isBot ? "#e0e0e0" : "#4CAF50";
+            messageDiv.style.color = isBot ? "black" : "white";
+            messageDiv.style.borderRadius = "5px";
+            document.getElementById("messages").appendChild(messageDiv);
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById("user_input").value;
+            if (userInput.trim() === "") return;
+
+            appendMessage(userInput, false);
+            document.getElementById("user_input").value = "";  // Clear input field
+
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage(data.reply, true);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                appendMessage("Oops, something went wrong. Please try again later.", true);
+            });
+        }
+    </script>
+</body>
+</html>
